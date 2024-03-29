@@ -54,6 +54,12 @@
 			opp-supported-hw = <0x1f>;
 		};
 
+		opp-10320000 {
+			opp-hz = /bits/ 64 <1032000000>;
+			opp-microvolt = <900000>;
+			clock-latency-ns = <244144>; /* 8 32k periods */
+			opp-supported-hw = <0x20>;
+		};
 		// opp-1032000000 {
 		// 	opp-hz = /bits/ 64 <1032000000>;
 		// 	opp-microvolt = <900000>;
