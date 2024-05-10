@@ -296,6 +296,8 @@ static int sun50i_h616_register_ppu(struct platform_device *pdev,
 	if (ret)
 		dev_warn(dev, "Failed to add provider: %d\n", ret);
 
+	sun50i_h616_ppu_pd_power_on(&pd->genpd);
+
 	return 0;
 }
 
