@@ -896,6 +896,7 @@
 			clock-names = "hosc", "losc", "iosc", "pll-periph";
 			#clock-cells = <1>;
 			#reset-cells = <1>;
+			#power-domain-cells = <1>;
 		};
 
 		nmi_intc: interrupt-controller@7010320 {
