@@ -36,6 +36,22 @@
 		};
 	};
 
+	// &ahub_dam_plat {
+	// 	status = "okay";
+	// };
+
+	// &ahub_dam_mach {
+	// status = "okay";
+	// };
+
+	// &ahub1_plat {
+	// 	status = "okay";
+	// };
+
+	// &ahub1_mach {
+	// 	status = "okay";
+	// };
+
 	gpio_keys_gamepad: gpio-keys-gamepad {
 		compatible = "gpio-keys";
 
