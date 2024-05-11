@@ -219,6 +219,15 @@
 	status = "okay";
 };
 
+&mmc2 {
+	vmmc-supply = <&reg_cldo4>;
+	vqmmc-supply = <&reg_aldo1>;
+	disable-wp;
+	cd-gpios = <&pio 4 22 GPIO_ACTIVE_LOW>; /* PE22 */
+	bus-width = <4>;
+	status = "okay";
+};
+
 &ohci0 {
 	status = "okay";
 };
@@ -272,7 +281,9 @@
 			};
 
 			reg_aldo1: aldo1 {
-				/* 1.8v - unused */
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-name = "vcc-1v8-sd2";
 			};
 
 			reg_aldo2: aldo2 {
