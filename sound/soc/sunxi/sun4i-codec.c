@@ -1570,9 +1570,9 @@ static struct snd_soc_card *sun8i_v3s_codec_create_card(struct device *dev)
 };
 
 static const struct snd_kcontrol_new sun50i_h616_codec_codec_controls[] = {
-	// SOC_SINGLE_TLV("DAC Playback Volume", SUN4I_CODEC_DAC_DPC,
-	// 	       SUN4I_CODEC_DAC_DPC_DVOL, 0x3f, 1,
-	// 	       sun6i_codec_dvol_scale),
+	SOC_SINGLE_TLV("DAC Playback Volume", SUN4I_CODEC_DAC_DPC,
+		SUN4I_CODEC_DAC_DPC_DVOL, 0x3f, 1,
+		sun6i_codec_dvol_scale),
 	SOC_SINGLE_TLV("Line Out Playback Volume",
 		SUN50I_H616_DAC_AC_DAC_REG,
 		SUN50I_H616_LINEOUT_VOL, 0x1f, 0,
@@ -1583,12 +1583,76 @@ static const struct snd_kcontrol_new sun50i_h616_codec_codec_controls[] = {
 		SUN50I_H616_LINEOUTR_EN, 1, 0),
 };
 
+static const struct snd_kcontrol_new sun50i_h616_codec_mixer_controls[] = {
+	SOC_DAPM_DOUBLE("DAC Playback Switch",
+			SUN50I_H616_DAC_AC_MIXER_REG,
+			SUN50I_H616_LMIX_LDAC,
+			SUN50I_H616_RMIX_RDAC, 1, 0),
+	SOC_DAPM_DOUBLE("DAC Reversed Playback Switch",
+			SUN50I_H616_DAC_AC_MIXER_REG,
+			SUN50I_H616_LMIX_RDAC,
+			SUN50I_H616_RMIX_LDAC, 1, 0),
+};
+
+static SOC_ENUM_DOUBLE_DECL(sun50i_h616_codec_lineout_src_enum,
+		SUN50I_H616_DAC_AC_DAC_REG,
+		SUN50I_H616_LINEOUTL_SEL,
+		SUN50I_H616_LINEOUTR_SEL,
+		sun6i_codec_lineout_src_enum_text);
+
+static const struct snd_kcontrol_new sun50i_h616_codec_lineout_src[] = {
+		SOC_DAPM_ENUM("Line Out Source Playback Route",
+		sun50i_h616_codec_lineout_src_enum),
+};
+
+static const struct snd_soc_dapm_widget sun50i_h616_codec_codec_widgets[] = {
+	/* Digital parts of the DACs */
+	SND_SOC_DAPM_SUPPLY("DAC Enable", SUN4I_CODEC_DAC_DPC,
+			    SUN4I_CODEC_DAC_DPC_EN_DA, 0,
+			    NULL, 0),
+
+	/* Analog parts of the DACs */
+	SND_SOC_DAPM_DAC("Left DAC", "Codec Playback",
+			 SUN50I_H616_DAC_AC_DAC_REG,
+			 SUN50I_H616_DAC_LEN, 0),
+	SND_SOC_DAPM_DAC("Right DAC", "Codec Playback",
+			 SUN50I_H616_DAC_AC_DAC_REG,
+			 SUN50I_H616_DAC_REN, 0),
+
+	/* Mixers */
+	SOC_MIXER_ARRAY("Left Mixer", SUN50I_H616_DAC_AC_MIXER_REG,
+			SUN50I_H616_LMIXEN, 0,
+			sun50i_h616_codec_mixer_controls),
+	SOC_MIXER_ARRAY("Right Mixer", SUN50I_H616_DAC_AC_MIXER_REG,
+			SUN50I_H616_RMIXEN, 0,
+			sun50i_h616_codec_mixer_controls),
+
+	/* Line Out path */
+	SND_SOC_DAPM_MUX("Line Out Source Playback Route",
+			 SND_SOC_NOPM, 0, 0, sun50i_h616_codec_lineout_src),
+	SND_SOC_DAPM_OUT_DRV("Line Out Ramp Controller",
+			     SUN50I_H616_DAC_AC_RAMP_REG,
+			     SUN50I_H616_RDEN, 0, NULL, 0),
+	SND_SOC_DAPM_OUTPUT("LINEOUT"),
+};
+
+static const struct snd_soc_component_driver sun50i_h616_codec_codec = {
+	.controls   = sun50i_h616_codec_codec_controls,
+	.num_controls   = ARRAY_SIZE(sun50i_h616_codec_codec_controls),
+	.dapm_widgets   = sun50i_h616_codec_codec_widgets,
+	.num_dapm_widgets = ARRAY_SIZE(sun50i_h616_codec_codec_widgets),
+	.idle_bias_on   = 1,
+	.use_pmdown_time  = 1,
+	.endianness   = 1,
+};
+
 static const struct snd_kcontrol_new sun50i_h616_card_controls[] = {
 	SOC_DAPM_PIN_SWITCH("LINEOUT"),
 };
 
 static const struct snd_soc_dapm_widget sun50i_h616_codec_card_dapm_widgets[] = {
 	SND_SOC_DAPM_LINE("Line Out", NULL),
+	SND_SOC_DAPM_SPK("Speaker", sun4i_codec_spk_event),
 };
 
 /* Connect digital side enables to analog side widgets */
@@ -1599,11 +1663,11 @@ static const struct snd_soc_dapm_route sun50i_h616_codec_card_routes[] = {
 
 	/* Left Mixer Routes */
 	{ "Left Mixer", "DAC Playback Switch", "Left DAC" },
-	// { "Left Mixer", "DAC Reversed Playback Switch", "Right DAC" },
+	{ "Left Mixer", "DAC Reversed Playback Switch", "Right DAC" },
 
 	/* Right Mixer Routes */
 	{ "Right Mixer", "DAC Playback Switch", "Right DAC" },
-	// { "Right Mixer", "DAC Reversed Playback Switch", "Left DAC" },
+	{ "Right Mixer", "DAC Reversed Playback Switch", "Left DAC" },
 
 	/* Line Out Routes */
 	{ "Line Out Source Playback Route", "Stereo", "Left Mixer" },
@@ -1612,16 +1676,6 @@ static const struct snd_soc_dapm_route sun50i_h616_codec_card_routes[] = {
 	{ "Line Out Source Playback Route", "Mono Differential", "Right Mixer" },
 	{ "Line Out Ramp Controller", NULL, "Line Out Source Playback Route" },
 	{ "LINEOUT", NULL, "Line Out Ramp Controller" },
-};
-
-static const struct snd_soc_component_driver sun50i_h616_codec_codec = {
-	.controls   = sun50i_h616_codec_codec_controls,
-	.num_controls   = ARRAY_SIZE(sun50i_h616_codec_codec_controls),
-	// .dapm_widgets   = sun50i_h616_codec_codec_widgets,
-	// .num_dapm_widgets = ARRAY_SIZE(sun50i_h616_codec_codec_widgets),
-	.idle_bias_on   = 1,
-	.use_pmdown_time  = 1,
-	.endianness   = 1,
 };
 
 static struct snd_soc_card *sun50i_h616_codec_create_card(struct device *dev)
@@ -1643,12 +1697,12 @@ static struct snd_soc_card *sun50i_h616_codec_create_card(struct device *dev)
 	card->dev		= dev;
 	card->owner		= THIS_MODULE;
 	card->name		= "H616 Audio Codec";
-	 card->controls		= sun50i_h616_card_controls;
-	 card->num_controls	= ARRAY_SIZE(sun50i_h616_card_controls),
+	card->controls		= sun50i_h616_card_controls;
+	card->num_controls	= ARRAY_SIZE(sun50i_h616_card_controls),
 	card->dapm_widgets	= sun50i_h616_codec_card_dapm_widgets;
 	card->num_dapm_widgets	= ARRAY_SIZE(sun50i_h616_codec_card_dapm_widgets);
-	 card->dapm_routes	= sun50i_h616_codec_card_routes;
-	 card->num_dapm_routes	= ARRAY_SIZE(sun50i_h616_codec_card_routes);
+	card->dapm_routes	= sun50i_h616_codec_card_routes;
+	card->num_dapm_routes	= ARRAY_SIZE(sun50i_h616_codec_card_routes);
 	card->fully_routed	= true;
 
 	ret = snd_soc_of_parse_audio_routing(card, "allwinner,audio-routing");
