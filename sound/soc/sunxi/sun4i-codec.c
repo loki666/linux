@@ -1569,9 +1569,23 @@ static struct snd_soc_card *sun8i_v3s_codec_create_card(struct device *dev)
 	return card;
 };
 
+static const struct snd_kcontrol_new sun50i_h616_codec_codec_controls[] = {
+	// SOC_SINGLE_TLV("DAC Playback Volume", SUN4I_CODEC_DAC_DPC,
+	// 	       SUN4I_CODEC_DAC_DPC_DVOL, 0x3f, 1,
+	// 	       sun6i_codec_dvol_scale),
+	SOC_SINGLE_TLV("Line Out Playback Volume",
+		SUN50I_H616_DAC_AC_DAC_REG,
+		SUN50I_H616_LINEOUT_VOL, 0x1f, 0,
+		sun6i_codec_lineout_vol_scale),
+	SOC_DOUBLE("Line Out Playback Switch",
+		SUN50I_H616_DAC_AC_DAC_REG,
+		SUN50I_H616_LINEOUTL_EN,
+		SUN50I_H616_LINEOUTR_EN, 1, 0),
+};
+
 static const struct snd_soc_component_driver sun50i_h616_codec_codec = {
-	// .controls   = sun50i_h616_codec_codec_controls,
-	// .num_controls   = ARRAY_SIZE(sun50i_h616_codec_codec_controls),
+	.controls   = sun50i_h616_codec_codec_controls,
+	.num_controls   = ARRAY_SIZE(sun50i_h616_codec_codec_controls),
 	// .dapm_widgets   = sun50i_h616_codec_codec_widgets,
 	// .num_dapm_widgets = ARRAY_SIZE(sun50i_h616_codec_codec_widgets),
 	.idle_bias_on   = 1,
