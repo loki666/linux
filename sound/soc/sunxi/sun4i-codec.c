@@ -1583,6 +1583,37 @@ static const struct snd_kcontrol_new sun50i_h616_codec_codec_controls[] = {
 		SUN50I_H616_LINEOUTR_EN, 1, 0),
 };
 
+static const struct snd_kcontrol_new sun50i_h616_card_controls[] = {
+	SOC_DAPM_PIN_SWITCH("LINEOUT"),
+};
+
+static const struct snd_soc_dapm_widget sun50i_h616_codec_card_dapm_widgets[] = {
+	SND_SOC_DAPM_LINE("Line Out", NULL),
+};
+
+/* Connect digital side enables to analog side widgets */
+static const struct snd_soc_dapm_route sun50i_h616_codec_card_routes[] = {
+	/* DAC Routes */
+	{ "Left DAC", NULL, "DAC Enable" },
+	{ "Right DAC", NULL, "DAC Enable" },
+
+	/* Left Mixer Routes */
+	{ "Left Mixer", "DAC Playback Switch", "Left DAC" },
+	// { "Left Mixer", "DAC Reversed Playback Switch", "Right DAC" },
+
+	/* Right Mixer Routes */
+	{ "Right Mixer", "DAC Playback Switch", "Right DAC" },
+	// { "Right Mixer", "DAC Reversed Playback Switch", "Left DAC" },
+
+	/* Line Out Routes */
+	{ "Line Out Source Playback Route", "Stereo", "Left Mixer" },
+	{ "Line Out Source Playback Route", "Stereo", "Right Mixer" },
+	{ "Line Out Source Playback Route", "Mono Differential", "Left Mixer" },
+	{ "Line Out Source Playback Route", "Mono Differential", "Right Mixer" },
+	{ "Line Out Ramp Controller", NULL, "Line Out Source Playback Route" },
+	{ "LINEOUT", NULL, "Line Out Ramp Controller" },
+};
+
 static const struct snd_soc_component_driver sun50i_h616_codec_codec = {
 	.controls   = sun50i_h616_codec_codec_controls,
 	.num_controls   = ARRAY_SIZE(sun50i_h616_codec_codec_controls),
@@ -1612,12 +1643,12 @@ static struct snd_soc_card *sun50i_h616_codec_create_card(struct device *dev)
 	card->dev		= dev;
 	card->owner		= THIS_MODULE;
 	card->name		= "H616 Audio Codec";
-	// card->controls		= sun50i_h616_card_controls;
-	// card->num_controls	= ARRAY_SIZE(sun50i_h616_card_controls),
-	// card->dapm_widgets	= sun50i_h616_codec_card_dapm_widgets;
-	// card->num_dapm_widgets	= ARRAY_SIZE(sun50i_h616_codec_card_dapm_widgets);
-	// card->dapm_routes	= sun50i_h616_codec_card_routes;
-	// card->num_dapm_routes	= ARRAY_SIZE(sun50i_h616_codec_card_routes);
+	 card->controls		= sun50i_h616_card_controls;
+	 card->num_controls	= ARRAY_SIZE(sun50i_h616_card_controls),
+	card->dapm_widgets	= sun50i_h616_codec_card_dapm_widgets;
+	card->num_dapm_widgets	= ARRAY_SIZE(sun50i_h616_codec_card_dapm_widgets);
+	 card->dapm_routes	= sun50i_h616_codec_card_routes;
+	 card->num_dapm_routes	= ARRAY_SIZE(sun50i_h616_codec_card_routes);
 	card->fully_routed	= true;
 
 	ret = snd_soc_of_parse_audio_routing(card, "allwinner,audio-routing");
@@ -1626,7 +1657,6 @@ static struct snd_soc_card *sun50i_h616_codec_create_card(struct device *dev)
 
 	return card;
 };
-
 
 static const struct regmap_config sun4i_codec_regmap_config = {
 	.reg_bits	= 32,
