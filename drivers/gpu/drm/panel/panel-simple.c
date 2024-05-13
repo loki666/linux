@@ -4342,6 +4342,33 @@ static const struct panel_desc winstar_wf35ltiacd = {
 	.bus_format = MEDIA_BUS_FMT_RGB888_1X24,
 };
 
+static const struct drm_display_mode wl_355608_a8_mode = {
+	// .clock = 6410,
+	.hdisplay = 640,
+	.hsync_start = 640 + 20,
+	.hsync_end = 640 + 20 + 30,
+	.htotal = 770, //320 + 20 + 30 + 38,
+	.vdisplay = 480,
+	.vsync_start = 480 + 4,
+	.vsync_end = 480 + 4 + 3,
+	.vtotal = 520,//240 + 4 + 3 + 15,
+	// .flags = DRM_MODE_FLAG_NVSYNC | DRM_MODE_FLAG_NHSYNC,
+};
+
+static const struct panel_desc wl_355608_a8 = {
+	.modes = &wl_355608_a8_mode,
+	.num_modes = 1,
+	.bpc = 8,
+	.size = {
+		.width = 150,
+		.height = 94,
+	},
+	.bus_flags = DRM_BUS_FLAG_DE_HIGH,
+	.bus_format = MEDIA_BUS_FMT_RGB888_1X24,
+	.connector_type = DRM_MODE_CONNECTOR_DPI,
+};
+
+
 static const struct drm_display_mode yes_optoelectronics_ytc700tlag_05_201c_mode = {
 	.clock = 51200,
 	.hdisplay = 1024,
@@ -4827,6 +4854,9 @@ static const struct of_device_id platform_of_match[] = {
 	}, {
 		.compatible = "winstar,wf35ltiacd",
 		.data = &winstar_wf35ltiacd,
+	}, {
+		.compatible = "wl_355608_a8",
+		.data = &wl_355608_a8,
 	}, {
 		.compatible = "yes-optoelectronics,ytc700tlag-05-201c",
 		.data = &yes_optoelectronics_ytc700tlag_05_201c,
