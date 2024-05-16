@@ -193,6 +193,11 @@
 	};
 };
 
+// &codec {
+// 	allwinner,audio-routing = "Line Out", "LINEOUT";
+// 	status = "okay";
+// };
+
 &cpu0 {
 	cpu-supply = <&reg_dcdc1>;
 };
@@ -297,7 +302,7 @@
 			reg_aldo4: aldo4 {
 				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <1800000>;
-				regulator-name = "vcc-pg";
+				regulator-name = "avcc";
 			};
 
 			reg_bldo1: bldo1 {
@@ -321,6 +326,10 @@
 
 			reg_cldo1: cldo1 {
 				/* 3.3v - audio codec - not yet implemented */
+				regulator-always-on;
+				regulator-min-microvolt = <3300000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-name = "vcc-audio-codec";
 			};
 
 			reg_cldo2: cldo2 {
