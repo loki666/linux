@@ -4365,7 +4365,7 @@ static const struct panel_desc wl_355608_a8 = {
 	},
 	.bus_flags = DRM_BUS_FLAG_DE_HIGH,
 	.bus_format = MEDIA_BUS_FMT_RGB888_1X24,
-	.connector_type = DRM_MODE_CONNECTOR_DPI,
+	.connector_type = DRM_MODE_CONNECTOR_SPI,
 };
 
 
