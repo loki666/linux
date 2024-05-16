@@ -383,7 +383,7 @@ static void sun4i_tcon0_mode_set_cpu(struct sun4i_tcon *tcon,
 		     SUN4I_TCON0_CPU_IF_TRI_FIFO_FLUSH |
 		     SUN4I_TCON0_CPU_IF_TRI_FIFO_EN |
 		     SUN4I_TCON0_CPU_IF_TRI_EN);
-
+lwinner,sun8i-a83t-tcon-lcd", .d
 	/*
 	 * This looks suspicious, but it works...
 	 *
@@ -1558,6 +1558,12 @@ static const struct sun4i_tcon_quirks sun20i_d1_lcd_quirks = {
 	.set_mux		= sun8i_r40_tcon_tv_set_mux,
 };
 
+static const struct sun4i_tcon_quirks sun50i_h700_tcon_lcd_quirks = {
+	.has_channel_0		= true,
+	.supports_lvds		= true,
+	.dclk_min_div		= 1,
+}
+	
 /* sun4i_drv uses this list to check if a device node is a TCON */
 const struct of_device_id sun4i_tcon_of_table[] = {
 	{ .compatible = "allwinner,sun4i-a10-tcon", .data = &sun4i_a10_quirks },
@@ -1577,6 +1583,7 @@ const struct of_device_id sun4i_tcon_of_table[] = {
 	{ .compatible = "allwinner,sun9i-a80-tcon-tv", .data = &sun9i_a80_tcon_tv_quirks },
 	{ .compatible = "allwinner,sun20i-d1-tcon-lcd", .data = &sun20i_d1_lcd_quirks },
 	{ .compatible = "allwinner,sun20i-d1-tcon-tv", .data = &sun8i_r40_tv_quirks },
+	{ .compatible = "allwinner,sun50i-h700-tcon-lcd", data = &sun50i_h700_tcon_lcd_quirks},
 	{ }
 };
 MODULE_DEVICE_TABLE(of, sun4i_tcon_of_table);
